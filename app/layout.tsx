@@ -92,7 +92,7 @@ export const metadata: Metadata = {
     yandex: process.env.NEXT_PUBLIC_YANDEX_SITE_VERIFICATION,
   },
   other: {
-    "yandex-verification": process.env.NEXT_PUBLIC_YANDEX_SITE_VERIFICATION ?? "ae8bc14dc1e79e3b",
+    "yandex-verification": process.env.NEXT_PUBLIC_YANDEX_SITE_VERIFICATION ?? "1ae4a89b8c46005d",
   },
 }
 
